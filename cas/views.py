@@ -41,6 +41,7 @@ def _service_url(request, redirect_to=None, gateway=False):
         protocol = ('http://', 'https://')[request.is_secure()]
     host = request.get_host()
     service = protocol + host + request.path
+    redirect_to = None
     if redirect_to:
         if '?' in service:
             service += '&'
