@@ -6,6 +6,7 @@ except ImportError:
     from urllib.parse import urlencode
 import ssl
 import json
+import logging
 try:
     from urllib import urlopen
 except ImportError:
@@ -33,6 +34,7 @@ class CASMiddleware(MiddlewareMixin):
     """
     Middleware that allows CAS authentication on admin pages
     """
+    logger = logging.getLogger(__name__)
 
     def process_request(self, request):
         """
@@ -56,12 +58,18 @@ class CASMiddleware(MiddlewareMixin):
         """
         serviceTicket = request.session.get('st')
 
+        self.logger.debug('service ticket from session: ' + serviceTicket)
+
         if serviceTicket and settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL != None :
             gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-            page = urlopen(settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL + serviceTicket , context=gcontext)
+            ticketUrl = settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL + serviceTicket
+            self.logger.debug('check service ticket expired via url: ' + ticketUrl)
+            page = urlopen(ticketUrl, context=gcontext)
             response = page.read()
+            self.logger.debug('response: ' + response)
             response = json.loads(response)
             if response['expired'] == True :
+                self.logger.debug('service ticket is expired, logout')
                 del request.session['st']
                 auth.logout(request)
                 return None
