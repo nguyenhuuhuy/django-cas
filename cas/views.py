@@ -178,6 +178,7 @@ def login(request, next_page=None, required=False, gateway=False):
 
     if ticket:
         user = auth.authenticate(ticket=ticket, service=service)
+        request.session['st'] = ticket
 
         if user is not None:
 
