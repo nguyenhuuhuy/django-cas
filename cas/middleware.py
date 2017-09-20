@@ -58,7 +58,10 @@ class CASMiddleware(MiddlewareMixin):
         """
         serviceTicket = request.session.get('st')
 
-        self.logger.debug('service ticket from session: ' + serviceTicket)
+        if serviceTicket:
+            self.logger.debug('service ticket from session: ' + serviceTicket)
+        else:
+            self.logger.debug("system don't have any service ticket, should go to login page")
 
         if serviceTicket and settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL != None :
             gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
