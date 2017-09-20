@@ -1,4 +1,5 @@
 import logging
+import ssl
 from xml.dom import minidom
 import time
 
@@ -65,7 +66,7 @@ def _verify_cas2(ticket, service):
     :param: ticket
     :param: service
     """
-    return _internal_verify_cas(ticket, service, 'proxyValidate')
+    return _internal_verify_cas(ticket, service, 'serviceValidate')
 
 
 def _verify_cas3(ticket, service):
@@ -84,8 +85,9 @@ def _internal_verify_cas(ticket, service, suffix):
 
     url = (urljoin(settings.CAS_SERVER_URL, suffix) + '?' +
            urlencode(params))
-
-    page = urlopen(url)
+    #user context to a void the error: [Errno socket error] [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
+    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    page = urlopen(url, context=gcontext)
 
     username = None
 
