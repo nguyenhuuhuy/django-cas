@@ -20,6 +20,7 @@ _DEFAULTS = {
     'CAS_PGT_FETCH_WAIT': True,
     'CAS_FORCE_SSL_SERVICE_URL': False,
     'CAS_AUTO_CREATE_USER': True,
+    'CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL': None,
 }
 
 for key, value in _DEFAULTS.items():

@@ -4,7 +4,12 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
-
+import ssl
+import json
+try:
+    from urllib import urlopen
+except ImportError:
+    from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth import logout as do_logout
@@ -12,6 +17,7 @@ from django.contrib.auth.views import login, logout
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib import auth
 try:
     from django.utils.deprecation import MiddlewareMixin
 except ImportError:
@@ -48,6 +54,17 @@ class CASMiddleware(MiddlewareMixin):
         login URL, as well as calls to django.contrib.auth.views.login and
         logout.
         """
+        serviceTicket = request.session.get('st')
+
+        if serviceTicket and settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL != None :
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+            page = urlopen(settings.CAS_SINGLE_LOGOUT_SERVICE_TICKET_URL + serviceTicket , context=gcontext)
+            response = page.read()
+            response = json.loads(response)
+            if response['expired'] == True :
+                del request.session['st']
+                auth.logout(request)
+                return None
 
         if view_func == login:
             return cas_login(request, *view_args, **view_kwargs)
