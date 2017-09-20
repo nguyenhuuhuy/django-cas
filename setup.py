@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '1.3.0'
+version = 'develop'
 
 
 def read(fname):
@@ -33,7 +33,7 @@ setup(name='django-cas-client',
       keywords='django cas',
       author='Derek Stegelman, Garrett Pennington',
       author_email='derekst@k-state.edu, garrettp@gmail.com',
-      url='http://github.com/kstateome/django-cas/',
+      url='http://github.com/nguyenhuuhuy/django-cas/',
       license='MIT',
       packages=find_packages(),
       include_package_data=True,
