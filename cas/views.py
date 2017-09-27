@@ -163,11 +163,14 @@ def login(request, next_page=None, required=False, gateway=False):
     :param: gateway Gatewayed response
 
     """
+    logger.debug('Call login page')
 
     if not next_page:
         next_page = _redirect_url(request)
+        logger.debug('nex page: ' + next_page)
 
     if request.user.is_authenticated():
+        logger.debug('User is authenticated, redirect to: ' + next_page)
         return HttpResponseRedirect(next_page)
 
     ticket = request.GET.get('ticket')
@@ -176,6 +179,8 @@ def login(request, next_page=None, required=False, gateway=False):
         service = _service_url(request, next_page, True)
     else:
         service = _service_url(request, next_page, False)
+
+    logger.debug('Login url (service): ' + service)
 
     if ticket:
         user = auth.authenticate(ticket=ticket, service=service)
@@ -187,6 +192,8 @@ def login(request, next_page=None, required=False, gateway=False):
 
             if settings.CAS_PROXY_CALLBACK:
                 proxy_callback(request)
+
+            logger.debug('Login successful, redirect to next page: ' + next_page)
 
             return HttpResponseRedirect(next_page)
         elif settings.CAS_RETRY_LOGIN or required:
@@ -208,10 +215,14 @@ def login(request, next_page=None, required=False, gateway=False):
                 error = "<h1>Forbidden</h1><p>Login failed.</p>"
                 return HttpResponseForbidden(error)
     else:
+        logger.debug("Don't have any service ticket from request, should redirect to login page")
         if gateway:
-            return HttpResponseRedirect(_login_url(service, ticket, True))
+            login_url = _login_url(service, ticket, True)
         else:
-            return HttpResponseRedirect(_login_url(service, ticket, False))
+            login_url = _login_url(service, ticket, False)
+
+        logger.debug('login Url: ' + login_url)
+        return HttpResponseRedirect(login_url)
 
 
 def logout(request, next_page=None):

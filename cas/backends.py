@@ -78,13 +78,14 @@ def _internal_verify_cas(ticket, service, suffix):
 
     Returns username on success and None on failure.
     """
-
+    logger.debug('Internal verify CAS with ticket = {}, service = {} and suffix = {}'.format(ticket, service, suffix))
     params = {'ticket': ticket, 'service': service}
     if settings.CAS_PROXY_CALLBACK:
         params['pgtUrl'] = settings.CAS_PROXY_CALLBACK
 
     url = (urljoin(settings.CAS_SERVER_URL, suffix) + '?' +
            urlencode(params))
+    logger.debug('Verify url: ' + url)
     #user context to a void the error: [Errno socket error] [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
     page = urlopen(url, context=gcontext)
@@ -93,6 +94,7 @@ def _internal_verify_cas(ticket, service, suffix):
 
     try:
         response = page.read()
+        logger.debug('Response content: \n' + response)
         tree = ElementTree.fromstring(response)
         document = minidom.parseString(response)
 
@@ -228,6 +230,7 @@ class CASBackend(object):
         Verifies CAS ticket and gets or creates User object
         NB: Use of PT to identify proxy
         """
+        logger.debug('Authenticate user with ticket = {} and service = {}'.format(ticket, service))
 
         User = get_user_model()
         username = _verify(ticket, service)
