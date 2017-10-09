@@ -9,7 +9,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-setup(name='django-cas-client',
+setup(name='django-cas-client-dev',
       version=version,
       description="Django Cas Client",
       long_description=read('README.md'),
